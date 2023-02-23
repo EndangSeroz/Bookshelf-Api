@@ -15,7 +15,8 @@ const addBooksHandler = (request, h) => {
 
   const id = nanoid(16);
 
-  const finished = pageCount === readPage;
+  // kondisi finished pakai ()
+  const finished = (pageCount === readPage);
   const insertedAt = new Date().toISOString();
   const updatedAt = insertedAt;
 
@@ -75,16 +76,19 @@ const addBooksHandler = (request, h) => {
 };
 
 const gettingAllBooks = (request, h) => {
-  const {name, reading, finished} = request.query;
+  // penulisan parameter { parameter1, parameter2 } harus menggunakan spasi
+  const { name, reading, finished } = request.query;
   let filterBooks = books;
 
   if (name !== undefined) {
-    filterBooks = filterBooks.filter((book) => book.name.toLowerCase().includes(name.toLowerCase()));
+    // melebihi jumlah kata per baris jadi harus jadi 2 baris
+    filterBooks = filterBooks.filter((book) => book
+      .name.toLowerCase().includes(name.toLowerCase()));
   }
-  if (reading) {
+  if (reading !== undefined) {
     filterBooks = filterBooks.filter((book) => Number(book.reading) === Number(reading));
   }
-  if (finished) {
+  if (finished !== undefined) {
     filterBooks = filterBooks.filter((book) => Number(book.finished) === Number(finished));
   }
   const response = h.response({
@@ -102,9 +106,10 @@ const gettingAllBooks = (request, h) => {
 };
 
 const gettingIdBooks = (request, h) => {
-  const {bookId} = request.params;
+  // gunakan nama id sesuai penamaan param & gunakan spasi
+  const { id } = request.params;
 
-  const book = books.filter((b) => b.bookId === bookId)[0];
+  const book = books.filter((b) => b.id === id)[0];
 
   if (book !== undefined) {
     return {
@@ -123,7 +128,8 @@ const gettingIdBooks = (request, h) => {
 };
 
 const editBookId = (request, h) => {
-  const {bookId} = request.params;
+  // penamaan id harus sesuai params
+  const { id } = request.params;
 
   const {
     name,
@@ -136,11 +142,14 @@ const editBookId = (request, h) => {
     reading,
   } = request.payload;
   const updatedAt = new Date().toISOString();
+  // kondisi finished harus ada setelah perubahan
+  const finished = (pageCount === readPage);
 
   if (name === undefined) {
     const response = h.response({
       status: 'fail',
-      message: 'Gagala memperbarui buku. Mohon isi nama buku',
+      // status & message harus sesuai keetentuan pengujian postman "Gagala" jadi "Gagal"
+      message: 'Gagal memperbarui buku. Mohon isi nama buku',
     });
     response.code(400);
     return response;
@@ -154,9 +163,11 @@ const editBookId = (request, h) => {
     return response;
   }
 
-  const index = books.findIndex((book) => book.bookId === bookId);
+  const index = books.findIndex((book) => book.id === id);
   if (index !== -1) {
-    books[index] ={
+    // aturan penulisan kode harus pake spasi books[index]={ jadi books[index] = {
+    // finished juga ditampilkan diperubahan
+    books[index] = {
       ...books[index],
       name,
       year,
@@ -165,6 +176,7 @@ const editBookId = (request, h) => {
       publisher,
       pageCount,
       readPage,
+      finished,
       reading,
       updatedAt,
     };
@@ -177,16 +189,18 @@ const editBookId = (request, h) => {
   }
   const response = h.response({
     status: 'fail',
-    message: 'Gagal memperbarui buku. id tidak ditemukan',
+    // isi message harus sama dengan pengujian postman Gagal memperbarui buku. Id tidak ditemukan
+    message: 'Gagal memperbarui buku. Id tidak ditemukan',
   });
   response.code(404);
   return response;
 };
 
 const deleteBookId = (request, h) => {
-  const {bookId} = request.params;
+  // harus sama penamaan params & gunakan spasi
+  const { id } = request.params;
 
-  const index = books.findIndex((book) => book.bookId === bookId);
+  const index = books.findIndex((book) => book.id === id);
   if (index !== -1) {
     books.splice(index, 1);
     const response = h.response({
@@ -198,7 +212,8 @@ const deleteBookId = (request, h) => {
   }
   const response = h.response({
     status: 'fail',
-    message: 'Buku gagal dihapus. id tidak ditemukan',
+    // harus sama message di postman Gagal memperbarui buku. Id tidak ditemukan
+    message: 'Buku gagal dihapus. Id tidak ditemukan',
   });
   response.code(404);
   return response;
